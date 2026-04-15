@@ -1,0 +1,98 @@
+Assign 6: 
+ 
+Set A  
+1) Perform the following tasks using Docker state commands: A. Pull the Ubuntu image 
+tagged as 20.04 from Docker Hub.  
+➔ Command:   docker pull ubuntu:20.04 
+      
+      B. List all available images.  
+         -> Command:   docker images 
+   
+      C. Pull the Ubuntu image tagged as latest from Docker Hub.  
+       -> Command:     docker pull ubuntu:latest 
+ 
+       D. Remove the Ubuntu image tagged as 20.04.  
+       -> Command: docker rmi ubuntu:20.04 
+ 
+       E. Run a container named ubuntu-os interactively with detached mode, using the 
+Ubuntu image tagged as latest.  
+       -> Command:   docker run -dit --name ubuntu-os ubuntu:latest 
+ 
+       F. Stop the running container ubuntu-os.  
+      -> Command:    docker stop ubuntu-os 
+ 
+       G. Restart the container ubuntu-os.  
+       -> Command:   docker start ubuntu-os 
+ 
+       H. List all containers.  
+       -> Command:   docker ps -a 
+ 
+-
+I. Create a directory within the running container ubuntu-os in detached mode.          
+Command:    docker exec ubuntu-os mkdir /myfolder 
+J. Check whether the folder is created within the container or not.  -> Command:   docker exec ubuntu-os ls / 
+K. Stop the container ubuntu-os.  -> Command:   docker stop ubuntu-os 
+L. Prune all containers.  -> Command:   docker container prune 
+
+
+Set B: 
+2) Perform the following tasks using Docker commands to manage a PostgreSQL instance: 
+A. Pull the latest version of the PostgreSQL image from Docker Hub.  
+➔ Command:   docker pull postgres:latest 
+B. Set up a container named postres-user1 with appropriate environment variables 
+and ensure it's in detached mode.  
+➔ Command:    docker run -d --name postres-user1 -e POSTGRES_PASSWORD=1234 
+postgres 
+C. Connect to the PostgreSQL instance within the container postres-user1 using the 
+command psql -U postgres.  
+➔ Command:   docker exec -it postres-user1 psql -U postgres 
+D. Create a new database within the PostgreSQL instance.  
+➔ Command:   CREATE DATABASE mydb; 
+E. Stop the container named postres-user1.  
+➔ Command:    docker stop postres-user1 
+F. Delete the container named postres-user1.  
+➔ Command:   docker rm postres-user1 
+
+
+Set C: 
+3) Construct a custom Dockerfile to containerize a Node.js HTTP server, build an image 
+from it, and then initiate a container. 
+wha 
+mkdir mynodeapp 
+cd mynodeapp 
+step 2: 
+nano server.js 
+step 3: 
+const http = require('http'); 
+http.createServer((req,res)=>{ 
+res.end("Hello Docker"); 
+}).listen(3000); 
+Step 4: 
+nano package.json 
+Step 5: 
+{ 
+"name": "app", 
+"version": "1.0.0", 
+"main": "server.js" 
+} 
+Step 6: 
+nano Dockerfile 
+Step 7: 
+FROM node:18 
+WORKDIR /app 
+COPY . . 
+EXPOSE 3000 
+CMD ["node","server.js"] 
+Step 8: 
+docker build -t my-node-app . 
+docker run -d -p 8080:3000 my-node-app 
+Step 9: 
+docker tag my-node-app sakshibhosale468/node-http-server:1.0 
+Step 10: 
+docker login 
+Step 11: 
+docker push sakshibhosale468/node-http-server:1.0 
+
+
+4th previously built  
+
