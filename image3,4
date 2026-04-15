@@ -1,0 +1,99 @@
+Assignment 3: Networking & Network ProgramingSet AQ1) Shell script to monitor system uptime every 5 minutes and store in "uptime_data.tsv" in descending order.Answer:Bash#!/bin/bash
+# Continuous monitoring loop [cite: 320]
+while true; do
+    # Capture timestamp and uptime [cite: 320]
+    TIMESTAMP=$(date "+%Y-%m-%d %H:%M:%S")
+    UPTIME_VAL=$(uptime -p)
+    
+    # Append to TSV file [cite: 344]
+    echo -e "$TIMESTAMP\t$UPTIME_VAL" >> uptime_data.tsv
+    
+    # Sort in descending order of timestamp and overwrite the file [cite: 321, 345]
+    sort -r uptime_data.tsv -o uptime_data.tsv
+    
+    # Wait for 300 seconds (5 minutes) [cite: 321, 344]
+    sleep 300
+done
+Q2) TCP socket-based client-server program in Python (Server on EC2, Client local).Answer:Server Code (Run on EC2):Pythonimport socket
+# Create TCP socket [cite: 322]
+server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+server.bind(('0.0.0.0', 12345))
+server.listen(1)
+print("TCP Server listening...")
+
+while True:
+    client_socket, addr = server.accept()
+    # Read uptime data [cite: 347]
+    with open("uptime_data.tsv", "r") as f:
+        data = f.read()
+        client_socket.send(data.encode()) # Send data stream [cite: 323]
+    client_socket.close()
+Client Code (Run on Local):Pythonimport socket
+client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+client.connect(('EC2_PUBLIC_IP', 12345)) # Fetch information from server [cite: 348]
+print(client.recv(4096).decode())
+client.close()
+Q3) UDP socket-based client-server program in Python.Answer:Server Code (Run on EC2):Pythonimport socket
+# Create UDP socket (Connectionless) [cite: 325, 326]
+server = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+server.bind(('0.0.0.0', 12346))
+
+while True:
+    data, addr = server.recvfrom(1024)
+    with open("uptime_data.tsv", "r") as f:
+        uptime_info = f.read()
+        server.sendto(uptime_info.encode(), addr) # "Fire" packet to client [cite: 326]
+        
+Set C (SCP Commands)Q5) Exact SCP commands for different scenarios:I. Copy file from EC2 to Local:scp -i mykey.pem ubuntu@EC2_IP:/home/ubuntu/example.txt /local_backup III. Copy entire /var/www directory (Recursive):scp -i mykey.pem -r ubuntu@EC2_IP:/var/www /web_backup VII. Transfer large file with compression:scp -i mykey.pem -C /local_reports/large_file.csv ubuntu@EC2_IP:/home/ubuntu/reports VIII. Preserve file permissions:scp -i mykey.pem -p -r /images ubuntu@EC2_IP:/home/ubuntu/media IX. Verbose mode for troubleshooting:scp -i mykey.pem -v example.txt ubuntu@EC2_IP:/home/ubuntu Assignment 4: Provisioning using TerraformSet AQ1) Manual Apache Setup on Ubuntu EC2.Answer:Bashsudo apt update
+sudo apt install apache2 -y # Download and install [cite: 415, 435]
+# Assuming project files are in a zip
+wget https://example.com/project.zip # Download sample project [cite: 436]
+unzip project.zip
+sudo mv project/* /var/www/html/ # Transfer files to designated location [cite: 415, 437]
+Q2) Terraform configuration for EC2 (main.tf).Answer:Terraform# Provider configuration [cite: 416, 444]
+provider "aws" {
+  region = "ap-south-1"
+}
+
+resource "aws_instance" "example" {
+  ami           = "ami-00bb6a80f" # Ubuntu AMI [cite: 441, 478]
+  instance_type = "t2.micro"      # Spec [cite: 442]
+
+  tags = {
+    Name = "ExampleAppServerInstance" # Tagging [cite: 443]
+  }
+}
+CLI Commands:terraform init (Initialize) terraform validate (Check syntax) terraform plan (Preview) terraform apply (Execute) Set B & CQ3) Variables for Dynamic Tagging (variables.tf).Answer:Terraformvariable "instance_name" {
+  description = "Value of the Name tag for the EC2 instance"
+  type        = string
+  default     = "MyProvisionedInstance"
+}
+Update main.tf:tags = { Name = var.instance_name } Q4) Output Management (outputs.tf).Answer:Terraformoutput "instance_id" {
+  value = aws_instance.example.id # Instance ID [cite: 468]
+}
+
+output "instance_public_ip" {
+  value = aws_instance.example.public_ip # Public IP [cite: 469]
+}
+Q5) Full Automated Deployment with User Data.Answer:Terraformresource "aws_instance" "web_app" {
+  ami           = "ami-00bb6a80f"
+  instance_type = "t2.micro"
+  key_name      = "mykey" # Key Pair [cite: 480]
+  
+  # Root block device 10GiB SSD [cite: 481]
+  root_block_device {
+    volume_size = 10
+    volume_type = "gp2"
+  }
+
+  # User data script for automation [cite: 427, 482]
+  user_data = <<-EOF
+              #!/bin/bash
+              sudo apt update
+              sudo apt install apache2 wget unzip -y # Install software [cite: 483]
+              wget https://www.tooplate.com/zip-templates/2135_mini_finance.zip
+              unzip 2135_mini_finance.zip
+              cp -r 2135_mini_finance/* /var/www/html/ # Deploy template [cite: 484]
+              systemctl start apache2
+              EOF
+}
