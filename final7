@@ -32,8 +32,9 @@ ME_CONFIG_MONGODB_SERVER=mongo-container mongo-express
 SET C 
 2) Mongo-Express Application (Using docker-compose.yml) A. Run a container using the Mongo 
 image, ensuring to set suitable environment variables, map ports, assign container names, 
-and connect to a default network. Dept. of Comp. Sci., S. P. College, Pune S.P.College, Dept. 
-of. Comp.Sci. 36 B. Run a container using the mongo-express image, ensuring to set 
+and connect to a default network. 
+
+B. Run a container using the mongo-express image, ensuring to set 
 appropriate environment variables, map ports, assign container names, and connect it to the 
 same default network as the Mongo container? Additionally, how would you ensure that 
 both containers, Mongo and mongo-express, are interconnected and accessible via the 
