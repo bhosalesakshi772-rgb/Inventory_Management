@@ -1,0 +1,69 @@
+Assignment 7
+Set A  
+1) Mongo-Express Application (Manual using Docker commands) A. Run a container using the 
+Mongo image, ensuring to set suitable environment variables, map ports, assign container 
+names, and connect to a custom network. Command: 
+
+1)first check docker version 
+docker –version 
+
+2)docker  ps 
+Step 1: docker network create mongo-network 
+Step 2: MongoDB container run 
+docker run -d --name mongo-container --network mongo-network -p 27017:27017 -e 
+MONGO_INITDB_ROOT_USERNAME=admin -e MONGO_INITDB_ROOT_PASSWORD=admin123 
+mongo 
+Step 3: Container verify 
+docker ps 
+----------------------------------------------------------------------------------------------------------------
+SET B 
+B) Run a container using the mongo-express image, ensuring to set appropriate environment 
+variables, map ports, assign container names, and connect it to the same custom network as the 
+Mongo container? Additionally, how would you ensure that both containers, Mongo and mongo
+express, are interconnected and accessible via the browser, particularly accessing the mongo-express 
+application. Command: 
+1) 
+docker run -d --name mongo-express --network mongo-network -p 8081:8081 -e 
+ME_CONFIG_MONGODB_ADMINUSERNAME=admin -e 
+ME_CONFIG_MONGODB_ADMINPASSWORD=admin123 -e 
+ME_CONFIG_MONGODB_SERVER=mongo-container mongo-express 
+2)docker ps 
+--------------------------------------------------------------------------------------------------------
+SET C 
+2) Mongo-Express Application (Using docker-compose.yml) A. Run a container using the Mongo 
+image, ensuring to set suitable environment variables, map ports, assign container names, 
+and connect to a default network. Dept. of Comp. Sci., S. P. College, Pune S.P.College, Dept. 
+of. Comp.Sci. 36 B. Run a container using the mongo-express image, ensuring to set 
+appropriate environment variables, map ports, assign container names, and connect it to the 
+same default network as the Mongo container? Additionally, how would you ensure that 
+both containers, Mongo and mongo-express, are interconnected and accessible via the 
+browser, particularly accessing the mongo-express application. Docker-compose.yml ->>
+
+file create: docker-compose.yml 
+Notepad docker-compose.yml 
+(sudo/nano)
+version: '3'
+
+services:
+  mongo:
+    image: mongo
+    container_name: mongo-container
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: admin123
+
+  mongo-express:
+    image: mongo-express
+    container_name: mongo-express
+    ports:
+      - "8081:8081"
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: admin
+      ME_CONFIG_MONGODB_ADMINPASSWORD: admin123
+      ME_CONFIG_MONGODB_SERVER: mongo   
+ 
+docker-compose up -d
+
+
