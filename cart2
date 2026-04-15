@@ -1,0 +1,113 @@
+Assignment 2: Advance Shell Scripting
+Set A
+Q1) Write a script to back up the directory /home/user/data into a folder named /backup with a timestamped subdirectory. Ensure your script displays a message upon successful completion of the backup.
+
+  #!/bin/bash
+SOURCE="/home/user/data"
+DESTINATION="/backup"
+DATE=$(date +%Y-%m-%d_%H-%M-%S)
+
+# Create the backup directory if it does not exist [cite: 217]
+mkdir -p $DESTINATION/$DATE
+
+# Copy contents of the source to the backup directory [cite: 218]
+cp -r $SOURCE $DESTINATION/$DATE
+
+echo "Backup completed on $DATE" [cite: 220]
+
+ Q2) Write a script that checks disk usage for all partitions and warns the user if the usage exceeds 80%.
+  #!/bin/bash
+THRESHOLD=80 [cite: 225]
+
+# List disk usage, filter headers, and extract usage % and partition name [cite: 226, 227, 228]
+df -H | grep -v '^Filesystem\|tmpfs\|cdrom' | awk '{print $5 " " $1}' | while read output;
+do
+  usage=$(echo $output | awk '{print $1}' | cut -d'%' -f1) [cite: 230]
+  partition=$(echo $output | awk '{print $2}') [cite: 231]
+
+  # Check if the usage exceeds the threshold [cite: 232]
+  if [ $usage -ge $THRESHOLD ]; then
+    echo "Warning: Disk usage on $partition is at ${usage}%" [cite: 232]
+  fi
+done
+
+Q3) Write a script to check the status of the Jenkins.service service and start it if it is not running. Display appropriate messages based on the service's state.
+  #!/bin/bash
+SERVICE="jenkins.service" [cite: 238]
+
+# Check if the service is running [cite: 239]
+if systemctl is-active --quiet $SERVICE; then
+    echo "$SERVICE is running" [cite: 240]
+else
+    # Start the service if it is not running [cite: 241]
+    sudo systemctl start $SERVICE
+    echo "$SERVICE has been started"
+fi
+
+ Set B
+
+Q4) Write a script to check the reachability of a host named google.com and redirect results into a file named ping_results.log.
+
+ #!/bin/bash
+HOST="google.com" [cite: 245]
+OUTPUT_FILE="ping_results.log" [cite: 246]
+
+# Pings the host once, suppressing output [cite: 249]
+if ping -c 1 $HOST &>/dev/null; then
+    echo "$HOST is reachable" >> $OUTPUT_FILE [cite: 250]
+else
+    echo "$HOST is not reachable" >> $OUTPUT_FILE [cite: 253]
+fi
+
+Q5) Write a script to back up a database named school into the directory /backups with a timestamped filename. The script should prompt the user for the database password.
+  #!/bin/bash
+DB_NAME="school" [cite: 256]
+BACKUP_DIR="/backups" [cite: 257]
+DATE=$(date +%Y-%m-%d_%H-%M-%S) [cite: 258]
+
+# Dumps the database to a SQL file; -p will prompt for password [cite: 259]
+mysqldump -u root -p $DB_NAME > $BACKUP_DIR/$DB_NAME-$DATE.sql
+
+echo "Database backup completed: $BACKUP_DIR/$DB_NAME-$DATE.sql" [cite: 260]
+
+Q6) Write a script that stores the system uptime in a file named system_uptime.log and appends a timestamp to each entry.
+  #!/bin/bash
+# Prints system uptime in human-readable format [cite: 265]
+echo "$(date): $(uptime -p)" >> system_uptime.log
+
+Q7) Write a command or script to display all TCP and UDP listening ports on a system, including their associated processes.
+  # netstat -tuln lists all TCP/UDP ports; grep LISTEN filters them [cite: 268, 269]
+netstat -tuln | grep LISTEN
+
+  Set C
+Q8) Write a script that updates the package list, upgrades installed packages, removes unnecessary packages, and cleans up the cache. Include appropriate messages at each step.
+  #!/bin/bash
+echo "Updating package list..."
+sudo apt-get update [cite: 276]
+
+echo "Upgrading packages..."
+sudo apt-get upgrade -y [cite: 277]
+
+echo "Removing unnecessary packages..."
+sudo apt-get autoremove -y [cite: 279]
+
+echo "Cleaning up cache..."
+sudo apt-get clean [cite: 278]
+
+echo "System packages updated and cleaned up" [cite: 280]
+
+Q9) Write a script to check the response times of the URLs https://example.com and https://google.com and display the results in the format: "Response time for [URL]: [time] seconds
+#!/bin/bash
+URLS=("https://example.com" "https://google.com") [cite: 285]
+
+for URL in "${URLS[@]}"; do [cite: 286]
+    # Uses curl to measure total response time [cite: 288]
+    RESPONSE_TIME=$(curl -o /dev/null -s -w '%{time_total}\n' $URL)
+    echo "Response time for $URL: $RESPONSE_TIME seconds" [cite: 289]
+done
+
+Q10) Write a command to display the top 10 processes consuming the most memory on a system.
+  # ps aux lists processes, --sort sorts by memory, head takes top 10 [cite: 293, 294, 295]
+ps aux --sort=-%mem | head -n 11
+  
+
